@@ -71,7 +71,7 @@ int main(int argc, char *argv[]){
 				if(strcmp(str,"Bye")==0){
 					data[4]=0;
 					send(sock,&data,sizeof(data),0);
-					kill(pid,SIGTERM);					
+					//kill(pid,SIGTERM);					
 					exit(0);
 					}
 				
@@ -81,6 +81,7 @@ int main(int argc, char *argv[]){
 				data[1] = data[1]+dice;
 				//increase the client total
 				data[3] = data[3]+dice;
+				printf("Client:Dice=%d\n",dice);
 				printf("Client:Client Total=%d\n",data[3]);
 				printf("Client:Server Total= %d\n",data[2]);				
 				printf("*****************************************\n");
@@ -92,17 +93,21 @@ int main(int argc, char *argv[]){
 				else if(data[4]==0)
 				{
 						printf("Server Exited\n");
-						kill(pid,SIGTERM);					
+						//kill(pid,SIGTERM);					
 						exit(0);
 				}
 				else if(data[4]==1){
 					printf("Game over:Server won the game\n");
-						kill(pid,SIGTERM);					
+					printf("Client:Client Total=%d\n",data[3]);
+					printf("Client:Server Total= %d\n",data[2]);				
+						//kill(pid,SIGTERM);					
 						exit(0);
 				}
 				else if(data[4]==2){
 					printf("Game over:Client won the game\n");
-						kill(pid,SIGTERM);					
+					printf("Client:Client Total=%d\n",data[3]);
+					printf("Client:Server Total= %d\n",data[2]);				
+						//kill(pid,SIGTERM);					
 						exit(0);
 				}
 					

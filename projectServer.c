@@ -62,6 +62,7 @@ int main(int argc, char *argv[]){
 			 serviceClient(remoteConn,0);
 		 close(remoteConn);
 		 waitpid(0, &status, WNOHANG);
+		 //exit(0);
 	}	 
 }
 
@@ -73,19 +74,23 @@ void serviceClient(int remoteConn,int pid){
 	if(data[4]!=0){
     if(data[2]>=100){
 		printf("Game Over:Server won the game\n");
+		printf("Server:Server total=%d\n",data[2]);
+		printf("Server:Client total= %d\n",data[3]);
 		data[4]=1;
 		send(remoteConn,&data,sizeof(data),0);
 		close(remoteConn);
 		exit(0);
-		kill(0,SIGTERM);	
+		//kill(0,SIGTERM);	
 	}
 	else if(data[3]>=100){
 		printf("Game Over:Client won the game\n");
+		printf("Server:Server total=%d\n",data[2]);
+		printf("Server:Client total= %d\n",data[3]);
 		data[4]=2;
 		send(remoteConn,&data,sizeof(data),0);
 		close(remoteConn);
 		exit(0);
-		kill(0,SIGTERM);	
+		//kill(0,SIGTERM);	
 	}
 	else{
 		printf("Game on\n");
@@ -109,6 +114,7 @@ void serviceClient(int remoteConn,int pid){
 	data[0] = data[0]+dice;
 	//increase the server total
 	data[2] = data[2]+dice;
+	printf("Server:Dice=%d\n",dice);
 	printf("Server:Server total=%d\n",data[2]);
 	printf("Server:Client total= %d\n",data[3]);
 	printf("*****************************************\n");
