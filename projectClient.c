@@ -1,4 +1,7 @@
-//server
+//client
+#include <time.h>
+#include <string.h>
+#include<sys/wait.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -10,11 +13,16 @@
 #include <sys/types.h>
 #include <signal.h>
 
+int getRandomInteger(int n){
+  srand(time(NULL));
+  return(rand()%n + 1);
+}
+
 int main(int argc, char *argv[]){
-	int sock, connClient, port;
+	int sock, port,dice=0;
 	char message[255];
 	char str[6];
-	int data[5];
+	int data[5],n=10;
 	struct sockaddr_in clientConfig;
 	
 	if(argc != 3){
@@ -50,15 +58,14 @@ int main(int argc, char *argv[]){
 			exit(0);
 		}
 		printf("%s\n",message);
-	
-		int pid;
-		pid=fork();
 		//if parent then read servers mesage
 			while(1){
 			if((recv(sock,&data,sizeof(data),0))>0){
-				if(data[4]!=0 ){
-				printf("Game on\n");
-				printf("Client playing\n");
+				if(data[4]>2){
+				printf("Game on: you can now play your dice\n");
+				printf("*****************************************\n");
+				printf("Client playing..\n");
+				printf("*****************************************\n");
 				printf("Press enter to continue or Bye to exit\n");
 				gets(str);
 				if(strcmp(str,"Bye")==0){
@@ -69,22 +76,36 @@ int main(int argc, char *argv[]){
 					}
 				
 				printf("*****************************************\n");
-				printf("Client:Server Score=%d\n",data[0]);
-				printf("Client:Client Score=%d\n",data[1]);
+				dice = getRandomInteger(n);
 				//increase client score
-				data[1] = data[1]+1;
-				printf("Client:Client Score after increment=%d\n",data[1]);
+				data[1] = data[1]+dice;
 				//increase the client total
-				data[3] = data[3]+1;
-				printf("Client:Client Score total=%d\n",data[3]);
+				data[3] = data[3]+dice;
+				printf("Client:Client Total=%d\n",data[3]);
 				printf("Client:Server Total= %d\n",data[2]);				
 				printf("*****************************************\n");
+				printf("Server Playing....\n");
+				printf("*****************************************\n");
+				
 				send(sock,&data,sizeof(data),0);
 				}
-				else{
+				else if(data[4]==0)
+				{
 						printf("Server Exited\n");
+						kill(pid,SIGTERM);					
 						exit(0);
-					}
+				}
+				else if(data[4]==1){
+					printf("Game over:Server won the game\n");
+						kill(pid,SIGTERM);					
+						exit(0);
+				}
+				else if(data[4]==2){
+					printf("Game over:Client won the game\n");
+						kill(pid,SIGTERM);					
+						exit(0);
+				}
+					
 				}				
 			}
 }
