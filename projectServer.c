@@ -12,7 +12,6 @@
 #include <signal.h>
 #include <time.h>
 #include <string.h>
-
 int getRandomInteger(int n){
   srand(time(NULL));
   return(rand()%n + 1);
@@ -96,7 +95,7 @@ void serviceClient(int remoteConn,int pid){
 		printf("Game on\n");
 	}
 	printf("*****************************************\n");
-	printf("Refree:Server playing...\n");
+	printf("Refree:Server playing with client %d...\n",data[0]);
 	printf("*****************************************\n");
 	printf("Press enter to play or Bye to exit\n");	
 	gets(str);
@@ -111,14 +110,14 @@ void serviceClient(int remoteConn,int pid){
 	printf("*****************************************\n");
 	dice=getRandomInteger(n);
 	//increase server score
-	data[0] = data[0]+dice;
+	//data[0] = data[0]+dice;
 	//increase the server total
 	data[2] = data[2]+dice;
 	printf("Server:Dice=%d\n",dice);
 	printf("Server:Server total=%d\n",data[2]);
 	printf("Server:Client total= %d\n",data[3]);
 	printf("*****************************************\n");
-	printf("Refree:Client playing\n\n");
+	printf("Refree:Client %d playing \n\n",data[0]);
 	printf("*****************************************\n");
 	
 	send(remoteConn,&data,sizeof(data),0);

@@ -21,8 +21,8 @@ int getRandomInteger(int n){
 int main(int argc, char *argv[]){
 	int sock, port,dice=0;
 	char message[255];
-	char str[6];
-	int data[5],n=10;
+	char str[6],ipaddr[20];
+	int data[5],n=10,id=0;
 	struct sockaddr_in clientConfig;
 	
 	if(argc != 3){
@@ -36,14 +36,21 @@ int main(int argc, char *argv[]){
     exit(1);
      }
 	 clientConfig.sin_family = AF_INET;
-	 sscanf(argv[2],"%d",&port);
+	 printf("Enter IP address of server:");
+	 gets(ipaddr);
+	 printf("Enter Port number:");
+	 scanf("%d",&port);
+	 //sscanf(argv[2],"%d",&port);
 	 clientConfig.sin_port = htons((uint16_t)port);
 	 
-	 if(inet_pton(AF_INET,argv[1],&clientConfig.sin_addr)<0){
+	 if(inet_pton(AF_INET,ipaddr,&clientConfig.sin_addr)<0){
 		   fprintf(stderr, " inet_pton() has failed\n");
 			exit(2);
 	 }
 	 printf("Port Number:%d\n",port);
+	 printf("Enter unique client number\n");
+	 scanf("%d",&id);
+	 printf("Data:%d\n",id);
 	 
 	 //connect to client
 	  if(connect(sock, (struct sockaddr *) &clientConfig, sizeof(clientConfig))<0){
@@ -64,7 +71,7 @@ int main(int argc, char *argv[]){
 				if(data[4]>2){
 				printf("Game on: you can now play your dice\n");
 				printf("*****************************************\n");
-				printf("Client playing..\n");
+				printf("Client %d playing ..\n",id);
 				printf("*****************************************\n");
 				printf("Press enter to continue or Bye to exit\n");
 				gets(str);
@@ -78,7 +85,7 @@ int main(int argc, char *argv[]){
 				printf("*****************************************\n");
 				dice = getRandomInteger(n);
 				//increase client score
-				data[1] = data[1]+dice;
+				data[0]=id;
 				//increase the client total
 				data[3] = data[3]+dice;
 				printf("Client:Dice=%d\n",dice);
