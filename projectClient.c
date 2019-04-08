@@ -29,28 +29,22 @@ int main(int argc, char *argv[]){
 		printf("Call model: %s <IP Address> <Port Number>\n", argv[0]);
     exit(0);
 	}
-	
 	//create a soccket for connection
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
     fprintf(stderr, "Cannot create socket\n");
     exit(1);
      }
 	 clientConfig.sin_family = AF_INET;
-	 printf("Enter IP address of server:");
-	 gets(ipaddr);
-	 printf("Enter Port number:");
-	 scanf("%d",&port);
-	 //sscanf(argv[2],"%d",&port);
+	 sscanf(argv[2],"%d",&port);
 	 clientConfig.sin_port = htons((uint16_t)port);
 	 
-	 if(inet_pton(AF_INET,ipaddr,&clientConfig.sin_addr)<0){
+	 if(inet_pton(AF_INET,argv[1],&clientConfig.sin_addr)<0){
 		   fprintf(stderr, " inet_pton() has failed\n");
 			exit(2);
 	 }
-	 printf("Port Number:%d\n",port);
-	 printf("Enter unique client number\n");
+	 printf("Enter unique client number:");
 	 scanf("%d",&id);
-	 printf("Data:%d\n",id);
+	 
 	 
 	 //connect to client
 	  if(connect(sock, (struct sockaddr *) &clientConfig, sizeof(clientConfig))<0){
@@ -78,7 +72,6 @@ int main(int argc, char *argv[]){
 				if(strcmp(str,"Bye")==0){
 					data[4]=0;
 					send(sock,&data,sizeof(data),0);
-					//kill(pid,SIGTERM);					
 					exit(0);
 					}
 				
@@ -99,23 +92,20 @@ int main(int argc, char *argv[]){
 				}
 				else if(data[4]==0)
 				{
-						printf("Server Exited\n");
-						//kill(pid,SIGTERM);					
+						printf("Server Exited\n");			
 						exit(0);
 				}
 				else if(data[4]==1){
 					printf("Game over:Server won the game\n");
 					printf("Client:Client Total=%d\n",data[3]);
-					printf("Client:Server Total= %d\n",data[2]);				
-						//kill(pid,SIGTERM);					
-						exit(0);
+					printf("Client:Server Total= %d\n",data[2]);			
+					exit(0);
 				}
 				else if(data[4]==2){
 					printf("Game over:Client won the game\n");
 					printf("Client:Client Total=%d\n",data[3]);
-					printf("Client:Server Total= %d\n",data[2]);				
-						//kill(pid,SIGTERM);					
-						exit(0);
+					printf("Client:Server Total= %d\n",data[2]);								
+					exit(0);
 				}
 					
 				}				

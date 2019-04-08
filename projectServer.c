@@ -12,12 +12,13 @@
 #include <signal.h>
 #include <time.h>
 #include <string.h>
+
 int getRandomInteger(int n){
   srand(time(NULL));
   return(rand()%n + 1);
 }
 
-void serviceClient(int,int);
+void serviceClient(int);
 
 int main(int argc, char *argv[]){
 	int sock, connClient, port,remoteConn,turn;
@@ -52,21 +53,20 @@ int main(int argc, char *argv[]){
 		 
 		 //accept connection
 		 remoteConn = accept(sock,NULL,NULL);
-		 printf("Got client\n");
-		 
-		 //send directive message to client
-		 send(remoteConn,"Hello Client\n",sizeof("Hello Client\n"),0);
-		 
-		 if(!fork())
-			 serviceClient(remoteConn,0);
-		 close(remoteConn);
-		 waitpid(0, &status, WNOHANG);
+		 if(!fork()){
+			 serviceClient(remoteConn);
+				close(remoteConn);
+		 }
+		 //waitpid(0, &status, WNOHANG);
 		 //exit(0);
 	}	 
 }
 
-void serviceClient(int remoteConn,int pid){
-	int scoreServer=0,dice=0,n=10;
+void serviceClient(int remoteConn){
+	printf("Got client\n");		 
+	//send directive message to client
+	send(remoteConn,"Hello Client\n",sizeof("Hello Client\n"),0);
+	int scoreServer=0,dice=0,n=10,connectionNumber=++server;
 	char str[6];
 	int data[5]={0,0,0,0,3};
 	while(1){
@@ -89,7 +89,6 @@ void serviceClient(int remoteConn,int pid){
 		send(remoteConn,&data,sizeof(data),0);
 		close(remoteConn);
 		exit(0);
-		//kill(0,SIGTERM);	
 	}
 	else{
 		printf("Game on\n");
@@ -100,17 +99,13 @@ void serviceClient(int remoteConn,int pid){
 	printf("Press enter to play or Bye to exit\n");	
 	gets(str);
 	if(strcmp(str,"Bye")==0){
-			//exit(1);
 			data[4]=0;
 			send(remoteConn,&data,sizeof(data),0);
-			//break;
-			exit(0);
-			kill(0,SIGTERM);					
+			exit(0);					
 		}
 	printf("*****************************************\n");
 	dice=getRandomInteger(n);
 	//increase server score
-	//data[0] = data[0]+dice;
 	//increase the server total
 	data[2] = data[2]+dice;
 	printf("Server:Dice=%d\n",dice);
@@ -125,9 +120,8 @@ void serviceClient(int remoteConn,int pid){
 	recv(remoteConn,&data,sizeof(data),0);
 	}
 	else{
-		printf("Client Exited\n");
-		exit(0);
-		kill(0,SIGTERM);			
+		printf("Client %d Exited\n",data[0]);
+		exit(0);			
 		
 	}
 	}
