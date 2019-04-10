@@ -14,24 +14,24 @@
 #include <signal.h>
 
 int getRandomInteger(int n){
-  srand(time(NULL));
   return(rand()%n + 1);
 }
 
 int main(int argc, char *argv[]){
+	srand(time(NULL));
 	int sock, port,dice=0;
 	char message[255];
-	char str[6],ipaddr[20];
+	char str[6];
 	int data[5],n=10,id=0;
 	struct sockaddr_in clientConfig;
 	
 	if(argc != 3){
-		printf("Call model: %s <IP Address> <Port Number>\n", argv[0]);
+		printf("Command Signature: %s IPAddress PortNumber\n", argv[0]);
     exit(0);
 	}
 	//create a soccket for connection
 	if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0){
-    fprintf(stderr, "Cannot create socket\n");
+    fprintf(stderr, "Socket cannot be created\n");
     exit(1);
      }
 	 clientConfig.sin_family = AF_INET;
@@ -39,14 +39,11 @@ int main(int argc, char *argv[]){
 	 clientConfig.sin_port = htons((uint16_t)port);
 	 
 	 if(inet_pton(AF_INET,argv[1],&clientConfig.sin_addr)<0){
-		   fprintf(stderr, " inet_pton() has failed\n");
+		   fprintf(stderr, " Conversion of internet address has failed\n");
 			exit(2);
-	 }
-	 printf("Enter unique client number:");
-	 scanf("%d",&id);
+	 } 
 	 
-	 
-	 //connect to client
+	 //connect to server
 	  if(connect(sock, (struct sockaddr *) &clientConfig, sizeof(clientConfig))<0){
 		fprintf(stderr, "connect() has failed, exiting\n");
 		exit(3);
@@ -54,32 +51,33 @@ int main(int argc, char *argv[]){
 		
 		printf("Connected to server\n");
 		
-		if((recv(sock,&message,sizeof(message),0))<0){
-			printf("No message received\n");
+		//read message from server
+		if((read(sock,&message,sizeof(message)))<0){
+			printf("No directive message from server\n");
 			exit(0);
 		}
 		printf("%s\n",message);
-		//if parent then read servers mesage
+		
 			while(1){
-			if((recv(sock,&data,sizeof(data),0))>0){
+				//check if client has sent data
+			if((read(sock,&data,sizeof(data)))>0){
 				if(data[4]>2){
 				printf("Game on: you can now play your dice\n");
 				printf("*****************************************\n");
-				printf("Client %d playing ..\n",id);
+				printf("Client playing ..\n");
 				printf("*****************************************\n");
 				printf("Press enter to continue or Bye to exit\n");
 				gets(str);
+				
 				if(strcmp(str,"Bye")==0){
 					data[4]=0;
-					send(sock,&data,sizeof(data),0);
+					write(sock,&data,sizeof(data));
 					exit(0);
 					}
 				
 				printf("*****************************************\n");
 				dice = getRandomInteger(n);
 				//increase client score
-				data[0]=id;
-				//increase the client total
 				data[3] = data[3]+dice;
 				printf("Client:Dice=%d\n",dice);
 				printf("Client:Client Total=%d\n",data[3]);
@@ -88,23 +86,29 @@ int main(int argc, char *argv[]){
 				printf("Server Playing....\n");
 				printf("*****************************************\n");
 				
-				send(sock,&data,sizeof(data),0);
+				//write data to client
+				write(sock,&data,sizeof(data));
 				}
+				//check if server exited
 				else if(data[4]==0)
 				{
 						printf("Server Exited\n");			
 						exit(0);
 				}
+				//check if server won the game
 				else if(data[4]==1){
 					printf("Game over:Server won the game\n");
 					printf("Client:Client Total=%d\n",data[3]);
-					printf("Client:Server Total= %d\n",data[2]);			
+					printf("Client:Server Total= %d\n",data[2]);	
+                    printf("*****************************************\n");
 					exit(0);
 				}
+				//check if client won the game
 				else if(data[4]==2){
 					printf("Game over:Client won the game\n");
 					printf("Client:Client Total=%d\n",data[3]);
-					printf("Client:Server Total= %d\n",data[2]);								
+					printf("Client:Server Total= %d\n",data[2]);	
+					printf("*****************************************\n");					
 					exit(0);
 				}
 					
