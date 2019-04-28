@@ -1,5 +1,5 @@
 # clientserversocket
-A small client server model to demonstrate workings of socket programming in C.
+A small client server dice game to demonstrate workings of socket programming in C.
 
 Steps for Running the Server
 1.Compile the projectServer.c file using following command:
