@@ -74,6 +74,12 @@ void serviceClient(int remoteConn,int clientNo){
 	write(remoteConn,"Hello Client\n",sizeof("Hello Client\n"));
 	int dice=0,n=10;
 	char str[6];
+	//Fields in data array
+	//First element tracks the server dice value
+	//Second element tracks the client dice value
+	//Third element tracks the server score
+	//Fourth element tracks the client score
+	//Fifth element specifies the number of turns
 	int data[5]={0,0,0,0,3};
 	while(1){
 	if(data[4]!=0){
