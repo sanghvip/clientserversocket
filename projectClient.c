@@ -21,7 +21,14 @@ int main(int argc, char *argv[]){
 	srand(time(NULL));
 	int sock, port,dice=0;
 	char message[255];
+	//str array to record string inputs and messages
 	char str[6];
+	//Fields in data array
+	//First element tracks the server dice value
+	//Second element tracks the client dice value
+	//Third element tracks the server score
+	//Fourth element tracks the client score
+	//Fifth element specifies the number of turns
 	int data[5],n=10,id=0;
 	struct sockaddr_in clientConfig;
 	
